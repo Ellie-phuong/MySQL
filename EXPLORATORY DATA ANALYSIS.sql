@@ -86,6 +86,7 @@ ORDER BY Ranking ASC
 SELECT *
 FROM Company_Year_Rank
 WHERE Ranking <=5;
+-- VMware had the highest total number of layoffs in 2023, while Intel led in 2024.
 
 
 -- Look at total laid off of each country per year
@@ -108,11 +109,30 @@ ORDER BY Ranking ASC
 SELECT *
 FROM Country_Year_Rank
 WHERE Ranking <=3;
+-- United States had the highest of total laid off in both 2023 and 2024.
 
 
+-- Look at total laid off of each industry per year
+SELECT industry, YEAR(`date`), SUM(total_laid_off) 
+FROM layoffs_staging2
+GROUP BY industry, YEAR(`date`)
+ORDER BY 3 DESC;
 
 
-
+WITH Country_Year (industry, years, total_laid_off) AS
+(
+SELECT industry, YEAR(`date`), SUM(total_laid_off) 
+FROM layoffs_staging2
+GROUP BY industry, YEAR(`date`)
+), Industry_Year_Rank AS 
+(SELECT*, DENSE_RANK() OVER (PARTITION BY years ORDER BY total_laid_off DESC) AS Ranking
+FROM Country_Year
+ORDER BY Ranking ASC
+)
+SELECT *
+FROM Industry_Year_Rank
+WHERE Ranking <=5;
+-- Other industries had the highest total of laid off in 2023 while Transportation led in 2024. 
 
 
 
